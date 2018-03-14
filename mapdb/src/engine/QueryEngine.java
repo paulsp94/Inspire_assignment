@@ -425,7 +425,7 @@ public class QueryEngine {
 	}
 
 	/*
-	 * Implement function 1 TODO
+	 * TODO Implement function 1
 	 */
 	public void prefixRangeQuery(SpatialQuery query, ArrayList<Integer> prefixResult,
 			ArrayList<Integer> prefixResultFromInfrequentQgram, ArrayList<Integer> substringCandidates,
@@ -446,7 +446,7 @@ public class QueryEngine {
 			HashMap<SecondLevelKey, TreeSet<Integer>> memHilbPosQgramInvertedMap,
 			HashMap<String, TreeSet<Integer>> memHilbQgramTokenInvertedMap) {
 		// read infrequent q-gram inverted index
-
+		
 		// if there are infrequent q-grams, join the infrequent inverted list
 
 		if (hasInfrequentPosQgram.isTrue() || hasInfrequentQgramToken.isTrue()) {
@@ -475,7 +475,7 @@ public class QueryEngine {
 	}
 
 	/*
-	 * Implement function 2
+	 * TODO Implement function 2
 	 */
 	public void substringRangeQuery(SpatialQuery query, HashSet<Integer> substringResult,
 			TreeMap<String, ArrayList<Integer>> substringNodeCandidateMap,
@@ -514,7 +514,7 @@ public class QueryEngine {
 	}
 
 	/*
-	 * Implement function 3
+	 * TODO Implement function 3
 	 */
 	public void approximatePrefixRangeQuery(SpatialQuery query, int tokenMinMatchThreshold,
 			IntersectingNodeStatsMap intersectingNodeStatsMap, HashSet<Integer> approximatePrefixResult,
