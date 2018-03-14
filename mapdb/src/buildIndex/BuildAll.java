@@ -29,13 +29,10 @@ public class BuildAll {
 	public static void main(String[] args) throws IOException {
 
 		if (args.length != 8) {
-			System.err.println("Usage: BuildObjectQgramDatabase   "
-					+ "0.datafile   " + "1.indexfile" + "2.samllQgramlength   "
-					+ "3.largerQgramLength   " + "4.positionUpperBound"
-					+ "5.maxElement   " + "6.infrequent threshold   "
-					+ "7.sparse threshold");
+			System.err.println("Usage: BuildObjectQgramDatabase   " + "0.datafile   " + "1.indexfile"
+					+ "2.samllQgramlength   " + "3.largerQgramLength   " + "4.positionUpperBound" + "5.maxElement   "
+					+ "6.infrequent threshold   " + "7.sparse threshold");
 		}
-		// / home/sheng/Desktop/Inspire2/sg.txt index 2 3 9 24 5 10
 
 		String file = args[0];
 		String indexFile = args[1];
@@ -54,12 +51,11 @@ public class BuildAll {
 		LineNumberReader lineReader = new LineNumberReader(new FileReader(file));
 
 		// spatial object database
-		SpatialObjectDatabase objectDatabase = new SpatialObjectDatabase(
-				indexFile, qgramLength, largerQgramLength, positionUpperBound);
+		SpatialObjectDatabase objectDatabase = new SpatialObjectDatabase(indexFile, qgramLength, largerQgramLength,
+				positionUpperBound);
 		objectDatabase.create();
 		// sg.txt
-		QuadTree quadtree = new QuadTree(new Region(new double[] { 0.0, 0.0 },
-				new double[] { 1.0, 1.0 }), maxElement);
+		QuadTree quadtree = new QuadTree(new Region(new double[] { 0.0, 0.0 }, new double[] { 1.0, 1.0 }), maxElement);
 		// QuadTree quadtree = new QuadTree( new Region( new double[] {82.41,
 		// 15.96},
 		// new double[] {136.91, 54.573} ), maxElement );
@@ -73,8 +69,7 @@ public class BuildAll {
 		infrequentQgramIndex.creatTree();
 
 		// create the infrequent q-gram token inverted index
-		InfrequentQgramTokenInvertedIndex infrequentQgramTokenIndex = new InfrequentQgramTokenInvertedIndex(
-				indexFile);
+		InfrequentQgramTokenInvertedIndex infrequentQgramTokenIndex = new InfrequentQgramTokenInvertedIndex(indexFile);
 		infrequentQgramTokenIndex.creatTree();
 
 		// infrequent q-grams in memory
@@ -100,8 +95,7 @@ public class BuildAll {
 
 			if (objectText.length() >= 3) {
 				// save to database
-				SpatialObject spatialObject = new SpatialObject(lat, lng,
-						objectText);
+				SpatialObject spatialObject = new SpatialObject(lat, lng, objectText);
 				objectDatabase.write(objectid, spatialObject);
 
 				// insert to quadtree
@@ -109,18 +103,15 @@ public class BuildAll {
 
 				// first m positional q-gram
 				ArrayList<PositionalQgram> positionalQgramSet = smallQgramGen
-						.getFirstMPositionalQgramArrayList(objectText,
-								positionUpperBound);
+						.getFirstMPositionalQgramArrayList(objectText, positionUpperBound);
 
 				// q-grams for larger q value
-				HashSet<String> QgramTokenSet = largeQgramGen
-						.getQgramHashSet(objectText);
+				HashSet<String> QgramTokenSet = largeQgramGen.getQgramHashSet(objectText);
 
 				// accumulate the count for positional q-gram
 				for (PositionalQgram gram : positionalQgramSet) {
 					String posQgramString = gram.toString();
-					IDSet idSet = positionalQgramInvertedMap
-							.get(posQgramString);
+					IDSet idSet = positionalQgramInvertedMap.get(posQgramString);
 					if (idSet == null) {
 						// store the object id to the positional qgram
 						idSet = new IDSet(objectid);
@@ -159,12 +150,9 @@ public class BuildAll {
 
 		System.out.println("object database and quad tree build time : "
 				+ (System.currentTimeMillis() - startTime) / 1000 + " second");
-		System.out.println("number of sparse nodes in Quadtree: "
-				+ quadtree.getSparseNodeNumber(sparseThreshold));
-		System.out.println("number of leaf nodes in Quadtree: "
-				+ quadtree.getNumberOfLeaves());
-		System.out.println("number of level in Quadtree: "
-				+ quadtree.getMaxDepth());
+		System.out.println("number of sparse nodes in Quadtree: " + quadtree.getSparseNodeNumber(sparseThreshold));
+		System.out.println("number of leaf nodes in Quadtree: " + quadtree.getNumberOfLeaves());
+		System.out.println("number of level in Quadtree: " + quadtree.getMaxDepth());
 		System.out.println();
 
 		/**
@@ -177,8 +165,7 @@ public class BuildAll {
 		// infrequent q-gram
 		// inverted index
 		// store the positions of a q-gram in the first level inverted index;
-		Iterator<Entry<String, IDSet>> itr = positionalQgramInvertedMap
-				.entrySet().iterator();
+		Iterator<Entry<String, IDSet>> itr = positionalQgramInvertedMap.entrySet().iterator();
 		while (itr.hasNext()) {
 			Entry<String, IDSet> entry = itr.next();
 			String gramString = entry.getKey();
@@ -191,8 +178,7 @@ public class BuildAll {
 			}
 		}
 
-		Iterator<Entry<String, IDSet>> tokenItr = qgramTokenInvertedMap
-				.entrySet().iterator();
+		Iterator<Entry<String, IDSet>> tokenItr = qgramTokenInvertedMap.entrySet().iterator();
 		while (tokenItr.hasNext()) {
 			Entry<String, IDSet> entry = tokenItr.next();
 			String token = entry.getKey();
@@ -205,12 +191,10 @@ public class BuildAll {
 			}
 		}
 
-		System.out.println("positional q-gram infrequent ratio : "
-				+ infrequentQgramIndex._map.size() + " / "
+		System.out.println("positional q-gram infrequent ratio : " + infrequentQgramIndex._map.size() + " / "
 				+ positionalQgramInvertedMap.size());
 
-		System.out.println("q-gram token infrequent ratio : "
-				+ infrequentQgramTokenIndex._map.size() + " / "
+		System.out.println("q-gram token infrequent ratio : " + infrequentQgramTokenIndex._map.size() + " / "
 				+ qgramTokenInvertedMap.size());
 
 		// clear the memory version
@@ -223,15 +207,12 @@ public class BuildAll {
 
 		// print the index built time
 		long totalTime = System.currentTimeMillis() - startTime;
-		System.out.println("infrequent inverted index building time : "
-				+ totalTime / 1000 + " seconds");
+		System.out.println("infrequent inverted index building time : " + totalTime / 1000 + " seconds");
 		System.out.println();
 
-		indexBuilding(indexFile, qgramLength, largerQgramLength,
-				positionUpperBound, maxElement, infrequentThreshold,
-				sparseThreshold, quadtree, infrequentPositionalQgramSet,
-				infrequentQgramTokenSet, objectDatabase, infrequentQgramIndex,
-				infrequentQgramTokenIndex);
+		indexBuilding(indexFile, qgramLength, largerQgramLength, positionUpperBound, maxElement, infrequentThreshold,
+				sparseThreshold, quadtree, infrequentPositionalQgramSet, infrequentQgramTokenSet, objectDatabase,
+				infrequentQgramIndex, infrequentQgramTokenIndex);
 
 		lineReader.close();
 	}
@@ -250,17 +231,18 @@ public class BuildAll {
 
 		FirstLevelInvertedIndex firstLevelInvertedIndex = new FirstLevelInvertedIndex(indexFile, qgramLength);
 		firstLevelInvertedIndex.createTree();
-		
-		QgramTokenCountPairInvertedIndex qgramTokenCountPairInvertedIndex = new QgramTokenCountPairInvertedIndex(indexFile);
+
+		QgramTokenCountPairInvertedIndex qgramTokenCountPairInvertedIndex = new QgramTokenCountPairInvertedIndex(
+				indexFile);
 		qgramTokenCountPairInvertedIndex.createTree();
 
 		// create second level inverted index
 		SecondLevelInvertedIndex secondLevelInvertedIndex = new SecondLevelInvertedIndex(indexFile, qgramLength);
 		secondLevelInvertedIndex.createMap();
-		
+
 		HilbertQgramTokenInvertedIndex hilbertQgramTokenInvertedIndex = new HilbertQgramTokenInvertedIndex(indexFile);
 		hilbertQgramTokenInvertedIndex.createTree();
-		
+
 		// build inverted database
 		quadtree.buildInvertedIndexNew(firstLevelInvertedIndex, qgramTokenCountPairInvertedIndex,
 				secondLevelInvertedIndex, hilbertQgramTokenInvertedIndex, objectDatabase, infrequentPositionalQgramSet,
@@ -271,18 +253,18 @@ public class BuildAll {
 
 		// print the index built time
 		long endTime = System.nanoTime();
-		int duration = (int) ((endTime - startTime) / 1e9); 
+		int duration = (int) ((endTime - startTime) / 1e9);
 
 		System.out.println("node-level and object-level inverted index build time : " + duration + " seconds \n");
 
 		System.out.println("number of sparse nodes in Quadtree: " + quadtree.getSparseNodeNumber(sparseThreshold));
 		System.out.println("number of leaf nodes in Quadtree: " + quadtree.getNumberOfLeaves());
 		System.out.println("number of level in Quadtree: " + quadtree.getMaxDepth());
-		
+
 		System.out.println("infrequent positional q-gram inverted index size: " + infrequentQgramIndex._map.size());
 		System.out.println("first-Level positional q-gram inverted index size: " + firstLevelInvertedIndex._count);
 		System.out.println("second-Level positional q-gram inverted index size: " + secondLevelInvertedIndex.count);
-		
+
 		System.out.println("q-gram token infrequent ratio : " + infrequentQgramTokenIndex._map.size());
 		System.out.println("first-Level q-gram token inverted index size: " + qgramTokenCountPairInvertedIndex._count);
 		System.out.println("second-Level q-gram token inverted index size: " + hilbertQgramTokenInvertedIndex._count);
