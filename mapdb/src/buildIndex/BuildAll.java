@@ -251,15 +251,15 @@ public class BuildAll {
 		FirstLevelInvertedIndex firstLevelInvertedIndex = new FirstLevelInvertedIndex(indexFile, qgramLength);
 		firstLevelInvertedIndex.createTree();
 		
-		HilbertQgramTokenInvertedIndex hilbertQgramTokenInvertedIndex = new HilbertQgramTokenInvertedIndex(indexFile);
-		hilbertQgramTokenInvertedIndex.createTree();
+		QgramTokenCountPairInvertedIndex qgramTokenCountPairInvertedIndex = new QgramTokenCountPairInvertedIndex(indexFile);
+		qgramTokenCountPairInvertedIndex.createTree();
 
 		// create second level inverted index
 		SecondLevelInvertedIndex secondLevelInvertedIndex = new SecondLevelInvertedIndex(indexFile, qgramLength);
 		secondLevelInvertedIndex.createMap();
 		
-		QgramTokenCountPairInvertedIndex qgramTokenCountPairInvertedIndex = new QgramTokenCountPairInvertedIndex(indexFile);
-		qgramTokenCountPairInvertedIndex.createTree();
+		HilbertQgramTokenInvertedIndex hilbertQgramTokenInvertedIndex = new HilbertQgramTokenInvertedIndex(indexFile);
+		hilbertQgramTokenInvertedIndex.createTree();
 		
 		// build inverted database
 		quadtree.buildInvertedIndexNew(firstLevelInvertedIndex, qgramTokenCountPairInvertedIndex,
@@ -271,15 +271,20 @@ public class BuildAll {
 
 		// print the index built time
 		long endTime = System.nanoTime();
-		long duration = (endTime - startTime) / 1000000000; // divide by 1000000 to get milliseconds.
+		int duration = (int) ((endTime - startTime) / 1e9); 
 
-		System.out.println("node-level and object-level inverted index build time : " + duration + " seconds");
+		System.out.println("node-level and object-level inverted index build time : " + duration + " seconds \n");
 
 		System.out.println("number of sparse nodes in Quadtree: " + quadtree.getSparseNodeNumber(sparseThreshold));
 		System.out.println("number of leaf nodes in Quadtree: " + quadtree.getNumberOfLeaves());
 		System.out.println("number of level in Quadtree: " + quadtree.getMaxDepth());
 		
 		System.out.println("infrequent positional q-gram inverted index size: " + infrequentQgramIndex._map.size());
+		System.out.println("first-Level positional q-gram inverted index size: " + firstLevelInvertedIndex._count);
+		System.out.println("second-Level positional q-gram inverted index size: " + secondLevelInvertedIndex.count);
 		
+		System.out.println("q-gram token infrequent ratio : " + infrequentQgramTokenIndex._map.size());
+		System.out.println("first-Level q-gram token inverted index size: " + qgramTokenCountPairInvertedIndex._count);
+		System.out.println("second-Level q-gram token inverted index size: " + hilbertQgramTokenInvertedIndex._count);
 	}
 }
