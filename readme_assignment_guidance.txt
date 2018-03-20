@@ -1,3 +1,5 @@
+INSPIRE PAPER: http://www.comp.nus.edu.sg/~atung/publication/tkde-inspire.pdf
+
 1. The index building class locates at: buildIndex.BuildAll
 
 2. Run the exemplar command: sg.txt index 2 3 9 24 5 10
@@ -37,3 +39,4 @@ second-Level q-gram token inverted index size: 449632
 **Specifically, the functions locate from line 497 to 653 in QueryEngine.java.
 Note that current code can be executed with command over RunQueryLatest.java:
 **index query.txt index index 2 3 9 10 5 5 10 0.01 0.0025 2 0
+
