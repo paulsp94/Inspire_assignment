@@ -2,6 +2,8 @@ package unit;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.json.JSONObject;
+
 import spatialindex.spatialindex.Point;
 
 @XmlRootElement
@@ -41,5 +43,13 @@ public class SpatialObject {
 	public String getText()
 	{
 		return this._text;
+	}
+	public String getJSON () {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("latitude: ", _lat);
+		jsonObject.put("longitude: ", _lng);
+		jsonObject.put("result: ", _text); 
+		
+		return jsonObject.toString();
 	}
 }

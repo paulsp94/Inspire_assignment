@@ -4348,5 +4348,14 @@ public class QueryEngine {
 
 		System.out.println();
 	}
+	
+	public String getResult(SpatialQuery query, Collection<Integer> collection) {
+
+		for (int id : collection) {
+			return objectDatabase.getSpatialObject(id).getJSON();
+		}
+
+		return null;
+	}
 
 }

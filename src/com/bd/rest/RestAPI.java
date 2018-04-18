@@ -1,6 +1,8 @@
 package com.bd.rest;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.AbstractMap.SimpleEntry;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,7 +12,10 @@ import javax.ws.rs.core.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import query.RunQueryLatest;
+import unit.SpatialObject;
+import unit.query.QueryType;
+
+
 
 @Path("/api")
 public class RestAPI {
@@ -23,24 +28,34 @@ public class RestAPI {
 		return Response.status(200).entity(result).build();
 	  }
 
-	  @Path("{s}")
+	  @Path("id={id}&lat={lat}&lon={lon}&query={q}")
 	  @GET
 	  @Produces("application/json")
-	  public Response inputGiven(@PathParam("s") String s) throws JSONException {
+	  public Response inputGiven(	@PathParam("id") String id,
+			  						@PathParam("lat") String lat,
+			  						@PathParam("lon") String lon,
+			  						@PathParam("q") String q) throws JSONException {
+		  
+		  String results = null;	  
+		  try {
+			results = query.RunQueryLatest.main(id+"\t"+lat+"\t"+lon+"\t"+q);
+		  } catch (IOException e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
+		  
+		  
 		  
 		  /*
-		  try {
-			query.RunQueryLatest.main(s);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		JSONObject jsonObject = new JSONObject();
- 
-		jsonObject.put("Input: ", s); 
+		jsonObject.put("id: ", id);
+		jsonObject.put("latitude: ", lat);
+		jsonObject.put("longitude: ", lon);
+		jsonObject.put("query: ", q); 
+*/ 			
+		  
 
-
-		String result = ""+jsonObject;
-		return Response.status(200).entity(result).build();
+		String result = "";//+jsonObject;
+		return Response.status(200).entity(results).build();
 	  }
 }

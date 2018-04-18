@@ -41,7 +41,7 @@ public class FirstLevelInvertedIndex {
 	// disk version
 	public FirstLevelInvertedIndex(String fileName)
 	{
-		_db = DBMaker.openFile( fileName + ".first.inverted.index" ).make();
+		_db = DBMaker.openFile( fileName + ".first.inverted.index" ).disableLocking().make();
 		initKryo();
 	}
 	

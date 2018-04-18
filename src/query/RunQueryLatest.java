@@ -26,17 +26,20 @@ import unit.query.SpatialQuery;
 public class RunQueryLatest
 {
 
-  public static void main( String s ) throws IOException
+  public static String main( String s ) throws IOException
   {
     // TODO Auto-generated method stub
       
 // index query.txt index index 2 3 9 10 5 5 10 0.01 0.0025 2 0
    
-
-    String dataFile = "index";
-    String queryFile = s;
-    String infrequentFile = "index";
-    String invertedIndexFile = "index";
+//=================================================================================================
+//=================================================================================================
+	  
+	//CHANGE PATH OR FIND SOLUTION....
+    String dataFile = "D:/Users/jacob/2018_Workspace/test/index";
+    //String queryFile = s;
+    String infrequentFile = dataFile;
+    String invertedIndexFile = infrequentFile;
     
     int smallQValue = 2;
     int largeQValue = 3;
@@ -59,9 +62,13 @@ public class RunQueryLatest
     System.out.println( dataFile );
 
    // load spatial object database
+   //SpatialObjectDatabase objectDatabase =  new SpatialObjectDatabase(smallQValue, largeQValue, positionUpperBound );
    SpatialObjectDatabase objectDatabase =  new SpatialObjectDatabase( dataFile, smallQValue, largeQValue, positionUpperBound );
+   
+   
+   System.out.println( "test 1" );
    objectDatabase.load();
-
+   System.out.println( "test 2" );
    // load quad tree
    System.out.println( "loading quad tree from file" );
    QuadTree quadTree = new QuadTree();
@@ -69,23 +76,29 @@ public class RunQueryLatest
    
    
    // load infrequent inverted database
+   //InfrequentPositionalQgramInvertedIndex infrequentInvertedIndex =  new InfrequentPositionalQgramInvertedIndex( smallQValue );
    InfrequentPositionalQgramInvertedIndex infrequentInvertedIndex =  new InfrequentPositionalQgramInvertedIndex( infrequentFile, smallQValue );
    infrequentInvertedIndex.loadTree();
-
+   //InfrequentQgramTokenInvertedIndex infrequentTokenInvertedIndex =  new InfrequentQgramTokenInvertedIndex();
    InfrequentQgramTokenInvertedIndex infrequentTokenInvertedIndex =  new InfrequentQgramTokenInvertedIndex( infrequentFile );
    infrequentTokenInvertedIndex.loadTree();
 
 
    // load inverted indexes
+   //FirstLevelInvertedIndex firstLevelInvertedIndex =  new FirstLevelInvertedIndex( smallQValue );
    FirstLevelInvertedIndex firstLevelInvertedIndex =  new FirstLevelInvertedIndex( invertedIndexFile, smallQValue );
    firstLevelInvertedIndex.loadTree();
-
+   
+   
+   //SecondLevelInvertedIndex secondLevelInvertedIndex =  new SecondLevelInvertedIndex( smallQValue );
    SecondLevelInvertedIndex secondLevelInvertedIndex =  new SecondLevelInvertedIndex( invertedIndexFile, smallQValue );
    secondLevelInvertedIndex.loadMap();
    
+   //QgramTokenCountPairInvertedIndex qgramTokenCountPairInvertedIndex =  new QgramTokenCountPairInvertedIndex();
    QgramTokenCountPairInvertedIndex qgramTokenCountPairInvertedIndex =  new QgramTokenCountPairInvertedIndex( invertedIndexFile );
    qgramTokenCountPairInvertedIndex.loadTree();
-
+   
+   //HilbertQgramTokenInvertedIndex hilbertQgramTokenInvertedIndex = new HilbertQgramTokenInvertedIndex();
    HilbertQgramTokenInvertedIndex hilbertQgramTokenInvertedIndex = new HilbertQgramTokenInvertedIndex( invertedIndexFile );
    hilbertQgramTokenInvertedIndex.loadTree();
 
@@ -101,9 +114,9 @@ public class RunQueryLatest
 
    StopWatch stopWatch = new StopWatch();
    
-   LineNumberReader queryReader = new LineNumberReader(new FileReader(queryFile));
+   //LineNumberReader queryReader = new LineNumberReader(new FileReader(queryFile));
 
-   String queryLine = queryReader.readLine();
+   String queryLine = s;//queryReader.readLine();
    System.out.println(queryLine);
    String[] block = null;
    double lat; 
@@ -114,7 +127,7 @@ public class RunQueryLatest
    while( queryLine != null )
    {     
      // initialize a query given a point and a query range
-     block = queryLine.split( "_" );
+     block = queryLine.split( "\t" );
      int id = Integer.parseInt( block[0] );
      lat = Double.parseDouble( block[1] );
      lng = Double.parseDouble( block[2] );
@@ -145,20 +158,15 @@ public class RunQueryLatest
        default:
     	 resultMap= engine.query( sq, stopWatch );
      }
-     
-     engine.printResult(sq,resultMap.keySet());
-     queryLine = queryReader.readLine();          
-     
-     
-     if ( count % 500 == 0 )
-     {
-       System.out.println("processing " + count + " / 1000" ); 
-     }
-     count ++;
+     String temp = engine.getResult(sq,resultMap.keySet());
+     objectDatabase.close();
+     return temp;
+ 
    }
-   
-   queryReader.close();
-   System.out.println(stopWatch);         
+   objectDatabase.close(); 
+   //queryReader.close();
+   System.out.println(stopWatch);
+return null;         
   }
 
 

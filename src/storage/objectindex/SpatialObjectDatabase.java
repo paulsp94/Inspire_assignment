@@ -30,13 +30,18 @@ public class SpatialObjectDatabase {
 	
 	public SpatialObjectDatabase( String fileName, int qgramLength, int largerQgramLength, int positionBound )
 	{
+		System.out.println( "test 3" );
 		_db = new IntegerByteArrayDatabase(fileName + ".object.db");
-		_gen = new QgramGenerator(qgramLength);		
+		System.out.println( "test 4" );
+		_gen = new QgramGenerator(qgramLength);
+		System.out.println( "test 5" );
 		initKryo();
-		
+		System.out.println( "test 6" );
 		// 	newly add
 		_largerQgramGen = new QgramGenerator(largerQgramLength);
+		System.out.println( "test 7" );
 		_positionBound = positionBound;
+		System.out.println( "test 8" );
 	}
 	
 	

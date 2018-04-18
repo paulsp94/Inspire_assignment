@@ -22,7 +22,7 @@ public class HilbertQgramTokenInvertedIndex
   // disk version
   public HilbertQgramTokenInvertedIndex(String fileName)
   {
-    _db = DBMaker.openFile( fileName + ".hilbert.token.inverted.index" ).make();
+    _db = DBMaker.openFile( fileName + ".hilbert.token.inverted.index" ).disableLocking().make();
   }
   
   public HilbertQgramTokenInvertedIndex()

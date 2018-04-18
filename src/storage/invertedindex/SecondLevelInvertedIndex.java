@@ -23,7 +23,7 @@ public class SecondLevelInvertedIndex {
 	// disk version
 	public SecondLevelInvertedIndex( String filename, int qgramLength )
 	{
-		_database = DBMaker.openFile(filename + ".second.inverted.index").make();
+		_database = DBMaker.openFile(filename + ".second.inverted.index").disableLocking().make();
 		_qgramLength = qgramLength;
 	}
 

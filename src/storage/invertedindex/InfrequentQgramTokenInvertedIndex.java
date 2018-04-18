@@ -24,7 +24,7 @@ public class InfrequentQgramTokenInvertedIndex {
 	// disk version
 	public InfrequentQgramTokenInvertedIndex(String fileName)
 	{
-		_db = DBMaker.openFile(fileName + ".infrequent.token.index").make();
+		_db = DBMaker.openFile(fileName + ".infrequent.token.index").disableLocking().make();
 	}
 		
 	// memory version

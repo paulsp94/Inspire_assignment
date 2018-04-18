@@ -31,6 +31,7 @@ filter\PrefixFilter.class
 unit\QgramGenerator.class
 spatialindex\quadtree\QuadTreeObject.class
 sortmergejoin\SortMergeJoin.class
+main\webapp\META-INF\MANIFEST.MF
 filter\QgramFilter.class
 storage\Cache.class
 sortmergejoin\NodeLevelJoin.class

@@ -26,7 +26,7 @@ public class QgramTokenCountPairInvertedIndex {
 	
 	public QgramTokenCountPairInvertedIndex(String fileName)
 	{
-		_db = DBMaker.openFile(fileName + ".count.pair.inverted.index").make();
+		_db = DBMaker.openFile(fileName + ".count.pair.inverted.index").disableLocking().make();
 		initKryo();
 	}
 	

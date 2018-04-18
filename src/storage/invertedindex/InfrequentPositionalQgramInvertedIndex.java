@@ -25,7 +25,7 @@ public class InfrequentPositionalQgramInvertedIndex {
 
 
   public InfrequentPositionalQgramInvertedIndex(String fileName, int qgramLength) {
-    _db = DBMaker.openFile(fileName + ".infrequent.index").make();
+    _db = DBMaker.openFile(fileName + ".infrequent.index").disableLocking().make();
     _qgramLength = qgramLength;
   }
   
