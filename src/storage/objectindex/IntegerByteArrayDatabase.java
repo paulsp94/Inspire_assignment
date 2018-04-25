@@ -14,7 +14,7 @@ public class IntegerByteArrayDatabase {
 	
 	public IntegerByteArrayDatabase(String fileName)
 	{
-		_db = DBMaker.openFile(fileName).make();
+		_db = DBMaker.openFile(fileName).disableLocking().make();
 	}
 	
 	public IntegerByteArrayDatabase()

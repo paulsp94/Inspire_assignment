@@ -328,7 +328,7 @@ public class QueryEngine {
 					// substring query
 					substringRangeQuery(query, substringResult, substringNodeCandidateCountMap,
 							intersectingNodeStatsMap, doSubstringNodeFilterInPrefixQuery, doSubstringNodeFilter, false,
-							memObjectMap, memHilbQgramTokenInvertedMap);
+							memObjectMap, memHilbQgramTokenInvertedMap,memQgramTokenCountPairInvertedMap);
 
 					this.addResults(resultMap, substringResult, memObjectMap, QueryType.SUBSTRING_RANGE);
 
@@ -361,7 +361,7 @@ public class QueryEngine {
 						long tempTime4 = System.currentTimeMillis();
 						substringRangeQuery(query, substringResult, substringNodeCandidateCountMap,
 								intersectingNodeStatsMap, doSubstringNodeFilterInPrefixQuery, doSubstringNodeFilter,
-								false, memObjectMap, memHilbQgramTokenInvertedMap);
+								false, memObjectMap, memHilbQgramTokenInvertedMap,memQgramTokenCountPairInvertedMap);
 						this.addResults(resultMap, substringResult, memObjectMap, QueryType.SUBSTRING_RANGE);
 
 						stopWatch.substringRangeTime += (System.currentTimeMillis() - tempTime4);
@@ -510,35 +510,72 @@ public class QueryEngine {
 	public void substringRangeQuery(SpatialQuery query, HashSet<Integer> substringResult,
 			TreeMap<String, ArrayList<Integer>> substringNodeCandidateMap,
 			IntersectingNodeStatsMap intersectingNodeStatsMap, BooleanObject doSubstringNodeFilterInPrefixQuery,
-			BooleanObject doSubstringNodeFilter, boolean intesectingNodeJoin,
+			BooleanObject doSubstringNodeFilter, boolean intersectingNodeJoin,
 			HashMap<Integer, SpatialObject> memObjectMap,
-			HashMap<String, TreeSet<Integer>> memHilbQgramTokenInvertedMap) {
+			HashMap<String, TreeSet<Integer>> memHilbQgramTokenInvertedMap,
+			HashMap<String, HilbertCountMap> memQgramTokenCountPairInvertedMap) {
+		// NEED POSITIONAL Q GRAM FOR THIS QUERY
 		// if the number of intersecting node is small, do not need to do node filter.
-		if (intersectingNodeStatsMap.denseNodeNumber < visitingNodeSizeThreshold) {
+		if (intersectingNodeStatsMap.denseNodeNumber < visitingNodeSizeThreshold) 
+		{
 			// if the node is never filtered before
-			if (doSubstringNodeFilterInPrefixQuery.isFalse() && doSubstringNodeFilter.isFalse()) {
-
+			if (doSubstringNodeFilterInPrefixQuery.isFalse() && doSubstringNodeFilter.isFalse()) 
+			{
+				Iterator<Entry<String, NodeStatistic>> itr = intersectingNodeStatsMap.entrySet().iterator();
+				while (itr.hasNext())
+				{
+					Entry<String, NodeStatistic> entry = itr.next();
+					String nodeHilbertCode = entry.getKey();
+					NodeStatistic nodeStats = entry.getValue();
+					//doSubstringNodeFilter
+					this.substringQueryInSingleNode(query, nodeHilbertCode, nodeStats, substringResult, memObjectMap, memHilbQgramTokenInvertedMap);
+					
+					//substringQueryInSingleNode
+				}
 			}
 			// if the node is filtered before
 			else {
-
+				//substringQueryInSingleNode
+				Iterator<Entry<String, ArrayList<Integer>>> nodeItr = substringNodeCandidateMap.entrySet().iterator();
+				while(nodeItr.hasNext())
+				{
+					Entry<String, ArrayList<Integer>> entry = nodeItr.next();
+					String nodeHilbertCode = entry.getKey();
+					NodeStatistic nodeStats = intersectingNodeStatsMap.get(nodeHilbertCode);
+					//check whether the intersecting node contains the hilbert code
+					if (nodeStats != null)
+					{
+						this.substringQueryInSingleNode(query, nodeHilbertCode, nodeStats, substringResult, memObjectMap, memHilbQgramTokenInvertedMap);
+					}
+				}
 			}
 		}
 
 		// if the number of intersecting node is large, need to do node filter.
-		else {
+		else 
+		{
 			// newly add for the no query reuse case
-			if (substringNodeCandidateMap == null) {
+			if (substringNodeCandidateMap == null) 
+			{
 				// compute the substringNodeCandidateMap
-
+				substringNodeCandidateMap = new TreeMap <String, ArrayList<Integer>> ();
+				this.substringNodeFilter(query, doSubstringNodeFilterInPrefixQuery, doSubstringNodeFilter, memQgramTokenCountPairInvertedMap, intersectingNodeStatsMap, substringNodeCandidateMap);
 			}
 
 			// join the substring node candidate with the intersectingNodeStatsMap
-			if (!intesectingNodeJoin) {
-
+			if (!intersectingNodeJoin) {
+				substringIntersectingNodeFilter(substringNodeCandidateMap,intersectingNodeStatsMap);
 			}
 
 			Iterator<Entry<String, ArrayList<Integer>>> nodeItr = substringNodeCandidateMap.entrySet().iterator();
+			
+			while(nodeItr.hasNext())
+			{
+				Entry<String,ArrayList<Integer>> entry = nodeItr.next();
+				String nodeHilbertCode = entry.getKey();
+				NodeStatistic nodeStats = intersectingNodeStatsMap.get(nodeHilbertCode);
+				this.substringQueryInSingleNode(query, nodeHilbertCode, nodeStats, substringResult, memObjectMap, memHilbQgramTokenInvertedMap);
+			}
 
 		}
 	}
@@ -562,7 +599,27 @@ public class QueryEngine {
 		if (intersectingNodeStatsMap.denseNodeNumber < visitingNodeSizeThreshold) {
 			Iterator<Entry<String, NodeStatistic>> itr = intersectingNodeStatsMap.entrySet().iterator();
 
-			// approximate prefix query in node
+			
+			while(itr.hasNext()){
+				Entry<String, NodeStatistic> entry = itr.next();
+				String nodeHilbertCode = entry.getKey();
+				NodeStatistic nodeStats = entry.getValue();
+				
+				// approximate prefix query in node
+				this.approximatePrefixQueryInSingleNode(
+						query, 
+						approximatePrefixResult, 
+						nodeHilbertCode, 
+						nodeStats, 
+						memObjectMap, 
+						memInfreqPosQgramInvertedMap, 
+						memHilbQgramTokenInvertedMap, 
+						memHilbPosQgramInvertedMap, 
+						memHilbQgramTokenInvertedMap, 
+						qgramFilter, 
+						mergeSkipOperator, 
+						approximateSubstringCandidateMap);
+			}
 		}
 
 		// need to do node filterskenlton
@@ -570,11 +627,12 @@ public class QueryEngine {
 			TreeSet<String> approximatePrefixNodeCandidates = new TreeSet<String>();
 
 			// node filter
-
+			this.approximatePrefixNodeFilter(query, tokenMinMatchThreshold, intersectingNodeStatsMap, approximatePrefixNodeCandidates);
 			// object process in node
 			if (!approximatePrefixNodeCandidates.isEmpty()) {
 				for (String nodeHilbertCode : approximatePrefixNodeCandidates) {
-
+					NodeStatistic nodeStats = intersectingNodeStatsMap.get(nodeHilbertCode);
+					this.approximatePrefixQueryInSingleNode(query, approximatePrefixResult, nodeHilbertCode, nodeStats, memObjectMap, memInfreqPosQgramInvertedMap, memInfreqQgramTokenInvertedMap, memHilbPosQgramInvertedMap, memHilbQgramTokenInvertedMap, qgramFilter, mergeSkipOperator, approximateSubstringCandidateMap);
 				}
 			}
 		}
@@ -4344,18 +4402,23 @@ public class QueryEngine {
 
 		for (int id : collection) {
 			System.out.println("object " + id + ":\t" + objectDatabase.getSpatialObject(id).getText());
+			System.out.println(id);
 		}
 
 		System.out.println();
 	}
 	
 	public String getResult(SpatialQuery query, Collection<Integer> collection) {
-
+		String results = "";
+		int i = 0;
 		for (int id : collection) {
-			return objectDatabase.getSpatialObject(id).getJSON();
+			i++;
+			if(i < collection.size())results = results + objectDatabase.getSpatialObject(id).getJSON()+",\n";
+			else results = results + objectDatabase.getSpatialObject(id).getJSON()+"\n";
 		}
 
-		return null;
+		return results;
 	}
+
 
 }

@@ -1,7 +1,10 @@
 package buildIndex;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,14 +45,17 @@ public class BuildAll {
 		int maxElement = Integer.parseInt(args[5]);
 		int infrequentThreshold = Integer.parseInt(args[6]);
 		int sparseThreshold = Integer.parseInt(args[7]);
-
+		int i=1;
 		/**
 		 * build object database and quadtree
 		 */
 		System.out.println("building object database and Quadtree...");
 
-		LineNumberReader lineReader = new LineNumberReader(new FileReader(file));
-
+		//LineNumberReader lineReader = new LineNumberReader( new FileInputStream(file), "UTF-8"));
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+			      new FileInputStream(file), "UTF-8"));
+		in.mark(1);
+		 if (in.read() != 0xFEFF)in.reset();
 		// spatial object database
 		SpatialObjectDatabase objectDatabase = new SpatialObjectDatabase(indexFile, qgramLength, largerQgramLength,
 				positionUpperBound);
@@ -82,17 +88,17 @@ public class BuildAll {
 
 		long startTime = System.currentTimeMillis();
 		int objectid;
-		String line = lineReader.readLine();
+		String line = in.readLine();
 		String objectText;
 		String[] temp;
 		double lat, lng;
 		while (line != null) {
+			System.out.println(i++);
 			temp = line.split("\t");
-			objectid = Integer.parseInt(temp[0]);
+			objectid = Integer.parseInt(temp[0]); 
 			lat = Double.parseDouble(temp[1]);
 			lng = Double.parseDouble(temp[2]);
 			objectText = temp[3];
-
 			if (objectText.length() >= 3) {
 				// save to database
 				SpatialObject spatialObject = new SpatialObject(lat, lng, objectText);
@@ -140,7 +146,7 @@ public class BuildAll {
 				}
 			}
 
-			line = lineReader.readLine();
+			line = in.readLine();
 		}
 
 		// commit object database
@@ -214,7 +220,7 @@ public class BuildAll {
 				sparseThreshold, quadtree, infrequentPositionalQgramSet, infrequentQgramTokenSet, objectDatabase,
 				infrequentQgramIndex, infrequentQgramTokenIndex);
 
-		lineReader.close();
+		in.close();
 	}
 
 	/*

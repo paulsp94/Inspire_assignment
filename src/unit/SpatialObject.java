@@ -45,10 +45,11 @@ public class SpatialObject {
 		return this._text;
 	}
 	public String getJSON () {
-		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("latitude: ", _lat);
-		jsonObject.put("longitude: ", _lng);
-		jsonObject.put("result: ", _text); 
+		String jsonObject = "\t{\n";
+		jsonObject += "\t\t\"latitude\":"+ _lat+",\n";
+		jsonObject += "\t\t\"longitude\":"+ _lng+",\n";
+		jsonObject += "\t\t\"result\":\""+_text+"\"\n";
+		jsonObject += "\t}";
 		
 		return jsonObject.toString();
 	}

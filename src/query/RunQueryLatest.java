@@ -26,7 +26,7 @@ import unit.query.SpatialQuery;
 public class RunQueryLatest
 {
 
-  public static String main( String s ) throws IOException
+  public static String main( String s, String radius) throws IOException
   {
     // TODO Auto-generated method stub
       
@@ -34,15 +34,39 @@ public class RunQueryLatest
    
 //=================================================================================================
 //=================================================================================================
-	  
+	  System.out.println("input api:"+ s);
+    String queryLine = s;//queryReader.readLine();
+    System.out.println(queryLine);
+   	String[] block = null;
+   	double lat; 
+   	double lng;
+   	String word;
+    int count = 1;
+    
+    block = queryLine.split( "\t" );
+    int id = Integer.parseInt( block[0] );
+    lat = Double.parseDouble( block[1] );
+    lng = Double.parseDouble( block[2] );
+    word = block[3];
+    
+    
 	//CHANGE PATH OR FIND SOLUTION....
     String dataFile = "D:/Users/jacob/2018_Workspace/test/index";
     //String queryFile = s;
     String infrequentFile = dataFile;
     String invertedIndexFile = infrequentFile;
     
-    int smallQValue = 2;
-    int largeQValue = 3;
+    int smallQValue = 1;
+    int largeQValue = 1;
+    
+    if(word.length()>1) {
+    	smallQValue = 2;
+        largeQValue = 2;
+    }
+    if(word.length()>3) {
+    	smallQValue = 2;
+        largeQValue = 3;
+    }
     int positionUpperBound = 9;       
     
     int sparseThreshold = 10;
@@ -52,7 +76,7 @@ public class RunQueryLatest
   
     
     double scarceThreshold = 0.01;
-    double rangeRadius = 0.0025;
+    double rangeRadius = Double.parseDouble(radius);
     double areaEnlargedRatio = 2;
     int queryType = 0;
 
@@ -66,9 +90,7 @@ public class RunQueryLatest
    SpatialObjectDatabase objectDatabase =  new SpatialObjectDatabase( dataFile, smallQValue, largeQValue, positionUpperBound );
    
    
-   System.out.println( "test 1" );
    objectDatabase.load();
-   System.out.println( "test 2" );
    // load quad tree
    System.out.println( "loading quad tree from file" );
    QuadTree quadTree = new QuadTree();
@@ -116,22 +138,9 @@ public class RunQueryLatest
    
    //LineNumberReader queryReader = new LineNumberReader(new FileReader(queryFile));
 
-   String queryLine = s;//queryReader.readLine();
-   System.out.println(queryLine);
-   String[] block = null;
-   double lat; 
-   double lng;
-   String word;
-   int count = 1;
-   
-   while( queryLine != null )
-   {     
+       
      // initialize a query given a point and a query range
-     block = queryLine.split( "\t" );
-     int id = Integer.parseInt( block[0] );
-     lat = Double.parseDouble( block[1] );
-     lng = Double.parseDouble( block[2] );
-     word = block[3];
+
           
      double[] lowCood = new double [2];     
      lowCood[0] = lng - rangeRadius;
@@ -158,15 +167,11 @@ public class RunQueryLatest
        default:
     	 resultMap= engine.query( sq, stopWatch );
      }
+     engine.printResult(sq,resultMap.keySet());
      String temp = engine.getResult(sq,resultMap.keySet());
      objectDatabase.close();
      return temp;
- 
-   }
-   objectDatabase.close(); 
-   //queryReader.close();
-   System.out.println(stopWatch);
-return null;         
+          
   }
 
 

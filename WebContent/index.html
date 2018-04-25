@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <style>		  
+		  #result {
+	   position: absolute;
+	   width: 100%;
+	   max-width:870px;
+	   cursor: pointer;
+	   overflow-y: auto;
+	   max-height: 400px;
+	   box-sizing: border-box;
+	   z-index: 1001;
+	  }
+	  .link-class:hover{
+	   background-color:#f1f1f1;
+	  }
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3 class="center-align" style="font-style: oblique">INSPIRE</h3>
+        <h4 class="center-align" style="font-style: oblique">A Framework for Incremental Spatial Prefix Query Relaxation</h4>
+        <div align="center">
+		    <input type="text" name="search" id="search" placeholder="Search Business" class="form-control" />
+		    <div>
+		    <input type="text" name="radius" id="radius" placeholder="Enter radius" class="form-control" />						
+			</div>
+		    <div id="lat">Click on the map to set your region</div>
+		    <div id="lng"></div>
+		   </div>
+		   <ul class="list-group" id="result"></ul>
+        <div id="map" class="center-align"></div>
+    </div>
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
+    <script>
+       
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0PxV4cPoPvvMTAq8HbeMIzb_MFxubzqs&callback=initMap"></script>
+    
+<script type="text/javascript">
+var melbourne = { lat: -37.8136, lng: 144.9631 };
+
+var min_lat = -37.84973559;
+var min_lng = 144.9
+function initMap() {
+   
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 14,
+        center: melbourne
+    });
+    
+    google.maps.event.addListener(map,'click',function(event) {                
+        document.getElementById('lat').innerHTML = event.latLng.lat();
+        document.getElementById('lng').innerHTML =  event.latLng.lng();
+    });
+}
+
+var delay = (function(){ // Function
+	var itcTimer = 0;
+	return function(callback, ms){
+		clearTimeout (itcTimer);
+		itcTimer = setTimeout(callback, ms);
+	};
+})();
+
+
+function search() {
+	$('#result').html('');
+	$('#state').val('');
+	$('#result').append('<li class="list-group-item link-class">Loading...</li>');
+	delay(function(){
+		var searchField = $('#search').val();
+		var refLatitude = $('#lat').text();
+		var refLongitude = $('#lng').text();
+		
+		
+		if(!refLongitude) refLongitude = 144.9631;
+		if(refLatitude === "Click on the map to set your region") refLatitude = -37.8136;
+		var radius = $('#radius').val();
+		if(!radius)radius = 0.25;
+		var jsonURL = 'http://localhost:8080/BT_Test/maps/api/id=249&lat='+refLatitude+'&lon='+refLongitude+'&query='+searchField+'&radius='+radius;
+		
+		
+		
+		$.getJSON(jsonURL, function(data) {
+			$('#result').empty();
+			
+			var map = new google.maps.Map(document.getElementById('map'), {
+		        zoom: 14,
+		        center: melbourne
+		    });
+			$.each(data, function(key, value){    
+				//$('#result').append('<li class="list-group-item link-class"><a>'+toTitle(value.result)+'</a></li>');  
+				var latitude = min_lat + value.latitude;
+				var longitude = min_lng + value.longitude;
+				 var marker = new google.maps.Marker({
+					 
+			          position: {lat: latitude, lng: longitude},
+			          map: map,
+			          title: toTitle(value.result)
+			        });
+				 
+			});
+			$('#result').empty();
+			google.maps.event.addListener(map,'click',function(event) {                
+		        document.getElementById('lat').innerHTML = event.latLng.lat();
+		        document.getElementById('lng').innerHTML =  event.latLng.lng();
+		    });
+		});	
+	}, 500 );
+}
+
+
+
+function toTitle(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+$(document).ready(function() {
+	
+/*not working	
+	$('#radius').keyup(function() {
+		var map = new google.maps.Map(document.getElementById('map'), {
+	        zoom: 14,
+	        center: melbourne
+	    });
+		var refLatitude = parseInt($('#lat').text());
+		var refLongitude = parseInt($('#lng').text());
+		var cityCircle = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.5,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: {lat: refLatitude, lng: refLongitude},
+            radius: parseInt($('#radius').val())
+          });
+	});
+	
+	*/
+	$.ajaxSetup({ cache: false });
+	$('#search').keyup(function() {
+		search();
+	});
+	
+	$('#radius').keyup(function() {
+		$('#result').empty();
+		$('#result').append('<li class="list-group-item link-class">Loading...</li>');
+		delay(function(){
+			search();
+		}, 500);
+	});
+});
+
+
+</script>
+    
+</body>
+
+</html>
